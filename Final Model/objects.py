@@ -101,10 +101,15 @@ class Region:
         self.uncertain_I = Uncertain_Variable(infected, 2.5)
         self.uncertain_bi = Uncertain_Constant(beta_i, [0.06,0.4])
         
+        self.uncertainty_level = [3]
+        self.capacity_over_time = [0]
+        
         self.ETCs = []
         self.cummulative_patients = 0
         #to model the time delay in uncertainty reduction, we need to also keep track of the cummulative number of patients one timestep back
         self.cummulative_patients_prev = 0
+        
+        ##Need to know when the ST comes in
         
         self.hidden = True
         self.ST = None
@@ -118,6 +123,13 @@ class Region:
         self.deceased.append(compartments_list[3])
         self.funeral.append(compartments_list[4])
         self.treated.append(compartments_list[5])
+        
+        if self.hidden == True:
+            self.uncertainty_level.append(3)
+        else:
+            self.uncertainty_level.append(self.uncertain_I.percentage + self.uncertain_bi.percentage)
+        
+        self.capacity_over_time.append(self.ETC_cap)
         
         self.uncertain_I.new_truth(self.infected[-1])
         

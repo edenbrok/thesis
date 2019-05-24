@@ -8,6 +8,8 @@ Created on Thu May 23 22:21:29 2019
 from scipy.integrate import odeint
 import numpy as np
 import random
+import pandas as pd
+import datetime
 
 import objective_functions
 from compartmental_model import calc_population
@@ -67,8 +69,6 @@ def ebola_model(I4 =3,
             region = Region(entry, region_population[entry], I14, 0, (I14/4), 0, 0, beta_i, beta_d)
         elif entry == 15:
             region = Region(entry, region_population[entry], I15, 0, (I15/4), 0, 0, beta_i, beta_d)
-            #For Kailahun it is known to the DM there is Ebola
-            region.hidden = False
         else:
             region = Region(entry, region_population[entry], 0, 0, 0, 0, 0, beta_i, beta_d)
             
@@ -98,13 +98,13 @@ def ebola_model(I4 =3,
                 region.spontaneous_news()
             
             #update uncertainties
-            if region.uncertain_I.percentage != uncertainty_reduction.unc_infected(region,x):
+            if region.uncertain_I.percentage > uncertainty_reduction.unc_infected(region,x):
                 region.uncertain_I.reduce_uncertainty(uncertainty_reduction.unc_infected(region, x))
                 
-            if region.uncertain_bi.percentage != uncertainty_reduction.unc_transmission(region.cummulative_patients_prev):
+            if region.uncertain_bi.percentage > uncertainty_reduction.unc_transmission(region.cummulative_patients_prev):
                 region.uncertain_bi.reduce_uncertainty(uncertainty_reduction.unc_transmission(region.cummulative_patients_prev))
             
-            
+ 
         
         #make decisions
         decision_type  = random.uniform(0,1)
@@ -150,5 +150,23 @@ def ebola_model(I4 =3,
     objective_4 = objective_functions.equity_arrival(regions,timesteps)
     objective_5 = objective_functions.efficiency(regions, compartments, no_response_results, timesteps)
     results = [objective_1, objective_2, objective_3, objective_4, objective_5]
-       
+    
+    if store_data:
+        df = pd.DataFrame()
+        
+        for region in regions:
+            data = pd.DataFrame({'S': region.susceptible, 
+                                 'I': region.infected,
+                                 'R': region.recovered,
+                                 'D': region.deceased,
+                                 'F': region.funeral,
+                                 'T': region.treated,
+                                 'Uncertainty': region.uncertainty_level,
+                                 'Capacity': region.capacity_over_time})
+    
+            df = df.append(data)
+            
+        #file_name = datetime.datetime.now() 
+        df.to_csv('base_scenario.csv')
+    
     return results
