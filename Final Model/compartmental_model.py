@@ -10,16 +10,16 @@ Created on Thu May 23 22:41:09 2019
 from utility import get_neighbours
 
 #### COMPARTMENTAL MODEL CONSTANTS ###
-fat_without = 0.4 #proportion of people dying without treatment
-t_fat_without = 0.9 #time in weeks until death without treatment
-t_rec_without = 2.5 #time in weeks until recovery without treatment
+fat_without = 0.31 #proportion of people dying without treatment
+t_fat_without = 2.5 #time in weeks until death without treatment
+t_rec_without = 2.85 #time in weeks until recovery without treatment
     
-fat_with = 0.35 #proportion of people dying with treatment
-t_fat_with = 1 #time in weeks until death with treatment
-t_rec_with = 1.56 #time in weeks until recovery with treatment
-safe_b_rate =0.73 #proportion of burials that are conducted safely
+fat_with = 0.24 #proportion of people dying with treatment
+t_fat_with = 2.5 #time in weeks until death with treatment
+t_rec_with = 2.37 #time in weeks until recovery with treatment
+safe_b_rate =0.64 #proportion of burials that are conducted safely
     
-beta_d = 0.68
+beta_d = 0.73
 
 compartments = 6 #no. of compartments in the model
 i_index = 1 #when listing the compartments, where the infected compartent is (starting from 0)

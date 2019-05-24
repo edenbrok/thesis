@@ -26,11 +26,17 @@ i_index = 1 #when listing the compartments, where the infected compartent is (st
 #THE GRID HAS TO BE SQUARE 
 no_regions = 16
 regions_list = [i for i in range(no_regions)] #list of the regions
+
+### REGION POPULATION ###
+region_population = [345474, 303272, 204686, 204686,
+              615376, 303272, 531435, 506100,
+              1055964, 444270, 318588, 575478,
+              200781, 346461, 609893, 526379]
     
     
 ### RESOURCES AVAILABLE ###
-surveillance_capacity = 1
-bed_capacity = 40 
+surveillance_capacity = 6 #Assumption, takes +5 weeks to search all regions
+bed_capacity = 900   #From WHO DATA
     
     
 ### TIMESTEPS ###
@@ -38,12 +44,14 @@ timesteps = 26
 
 
 
-def ebola_model(I1 = 0,
-                I2 = 0,
-                beta_i = 0.33,
-                beta_d = 0.68,
+def ebola_model(I4 =3,
+                I14 = 1,
+                I15 = 28,
+                beta_i = 0.32,
+                beta_d = 0.73,
                 travel_rate = 0.05,
-                exploration_ratio = 0.5):
+                exploration_ratio = 0.5,
+                store_data = False):
     
     
     #Time vector to feed into odeint, one timestep each iteration
@@ -53,12 +61,16 @@ def ebola_model(I1 = 0,
     regions = []
     
     for entry in regions_list:
-        if entry == 0:
-            region = Region(entry, (10000-1.5*I1), I1, 0, (0.5*I1), 0, 0, beta_i, beta_d)
-        elif entry == 1:
-            region = Region(entry, (10000-1.5*I2), I2, 0, (0.5*I2), 0, 0, beta_i, beta_d)
+        if entry == 4:
+            region = Region(entry, region_population[entry], I4, 0, (I4/4), 0, 0, beta_i, beta_d)
+        elif entry == 14:
+            region = Region(entry, region_population[entry], I14, 0, (I14/4), 0, 0, beta_i, beta_d)
+        elif entry == 15:
+            region = Region(entry, region_population[entry], I15, 0, (I15/4), 0, 0, beta_i, beta_d)
+            #For Kailahun it is known to the DM there is Ebola
+            region.hidden = False
         else:
-            region = Region(entry, 10000, 0, 0, 0, 0, 0, beta_i, beta_d)
+            region = Region(entry, region_population[entry], 0, 0, 0, 0, 0, beta_i, beta_d)
             
         regions.append(region)
     

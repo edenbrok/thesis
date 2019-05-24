@@ -192,13 +192,15 @@ class ETC:
             self.timestep_opened = timestep_placed + 1
         if(capacity == 50):
             self.timestep_opened = timestep_placed + 3
+        if(capacity == 100):
+            self.timestep_opened = timestep_placed + 4
         
         self.timestep_closed = -1
     
     def close_ETC(self, timestep):
         if self.capacity == 10:
             self.timestep_closed = timestep + 1
-        elif self.capacity == 50:
+        elif self.capacity == 50 or self.capacity == 100:
             self.timestep_closed = timestep + 2
             
     def calc_cost(self, timesteps):
@@ -225,6 +227,16 @@ class ETC:
                 weeks_open = self.timestep_closed - self.timestep_opened
                 
             total_cost += weeks_open * (4405 + 1125 + 564)
+            
+        elif self.capacity == 100:
+            total_cost += 694800
+            
+            if self.timestep_closed == -1:
+                weeks_open = timesteps - 1 - self.timestep_opened
+            else:
+                weeks_open = self.timestep_closed - self.timestep_opened
+                
+            total_cost += weeks_open * (8810 + 1125 + 564)
             
         return total_cost
         

@@ -10,7 +10,8 @@ import random
 
 def explorative_decision(regions,x, surveillance_capacity, bed_capacity):
         
-        available_st = surveillance_capacity - surveillance_teams_in_use(regions,x)
+        #assumption that you can send out max 3 surveillance teams at a time
+        available_st = min(3, surveillance_capacity - surveillance_teams_in_use(regions,x))
         
         #Surveillance teams only have an effect on hidden regions. Check if there are still hidden regions
         still_hidden = False
@@ -27,7 +28,7 @@ def explorative_decision(regions,x, surveillance_capacity, bed_capacity):
                 if region.hidden == True:
                     hidden_regions.append(region)
                     
-            for i in range(available_st):
+            for i in range(min(len(hidden_regions),available_st)):
                 chosen_region = random.choice(hidden_regions)
                 chosen_region.surveillance_team(x)
                 #print("A surveillance team has been deloyed to region", chosen_region.number)
@@ -103,8 +104,16 @@ def exploitative_decision(regions,x, bed_capacity):
                 chosen_region = options[0]
 
             #print(resources_in_use(regions,x))    
+            if highest_infected >= 100:
+                if bed_capacity - resources_in_use(regions,x) >= 100:
+                    chosen_region.placement_decision(x,100)
+                elif bed_capacity - resources_in_use(regions,x) >= 50:
+                    chosen_region.placement_decision(x,50)
+                    #print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
+                elif bed_capacity - resources_in_use(regions,x) >= 10:
+                    chosen_region.placement_decision(x,10)
 
-            if highest_infected >= 50:
+            elif highest_infected >= 50:
                 if bed_capacity - resources_in_use(regions,x) >= 50:
                     chosen_region.placement_decision(x,50)
                     #print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
