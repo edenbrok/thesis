@@ -185,13 +185,15 @@ class Region:
     def spontaneous_news(self):
         no_infected = self.infected[-1]
         
-        p = 1-1/(1+math.e**((no_infected-40)/7))
+        if no_infected >= 5:
         
-        i  = random.uniform(0,1)
-        
-        if i <= p:
-            self.hidden = False
-            #print("Spontaneous news from region ", self.number)
+            p = 1-1/(1+math.e**((no_infected-40)/5))
+
+            i  = random.uniform(0,1)
+
+            if i <= p:
+                self.hidden = False
+                print("Spontaneous news from region ", self.number)
         
         
 

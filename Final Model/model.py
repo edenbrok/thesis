@@ -47,8 +47,8 @@ timesteps = 26
 
 
 def ebola_model(I4 =3,
-                I14 = 1,
-                I15 = 28,
+                I14 = 25,
+                I15 = 32,
                 beta_i = 0.32,
                 beta_d = 0.73,
                 travel_rate = 0.05,
@@ -82,14 +82,17 @@ def ebola_model(I4 =3,
         y0.extend([region.susceptible[0], region.infected[0], region.recovered[0], region.deceased[0], region.funeral[0], region.treated[0]])
 
         
-    no_response_t = np.linspace(0, 10, 10)
+    no_response_t = np.linspace(0, timesteps, timesteps)
     no_response_population = odeint(calc_population, y0, t=no_response_t, args=(regions, travel_rate))
+    
+    pd.DataFrame(no_response_population).to_csv("no_response_data.csv")
+    
     no_response_results = no_response_population[-1]
     
     
     for x in range (0,timesteps):
         
-        #print("Timestep ", x)
+        print("Timestep ", x)
         
         for region in regions:
             
@@ -143,7 +146,24 @@ def ebola_model(I4 =3,
             regions[i].update(y0[i*compartments:i*compartments+compartments])
             regions[i].update_cummulative_patients()
 
-
+    if store_data:
+        df = pd.DataFrame()
+        
+        for region in regions:
+            data = pd.DataFrame({'S': region.susceptible, 
+                                 'I': region.infected,
+                                 'R': region.recovered,
+                                 'D': region.deceased,
+                                 'F': region.funeral,
+                                 'T': region.treated,
+                                 'Uncertainty': region.uncertainty_level,
+                                 'Capacity': region.capacity_over_time})
+    
+            df = df.append(data)
+            
+        #file_name = datetime.datetime.now() 
+        df.to_csv('validity_test.csv')
+        
     objective_1 = objective_functions.effectiveness(regions, compartments, no_response_results)
     objective_2 = objective_functions.speed(regions,timesteps)
     objective_3 = objective_functions.equity_demand(regions)
@@ -167,6 +187,6 @@ def ebola_model(I4 =3,
             df = df.append(data)
             
         #file_name = datetime.datetime.now() 
-        df.to_csv('base_scenario.csv')
+        df.to_csv('validity_test.csv')
     
     return results

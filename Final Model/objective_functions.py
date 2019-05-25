@@ -104,18 +104,20 @@ def equity_arrival(regions, timesteps):
                 break
         
         #no infections means no demand
-        if first_infected is None:
-            break
-        
-        #if no ETCs were ever placed
-        #now just the time until the simulation ends
-        if not region.ETCs:
-            time_until_arrival.append(timesteps - 1 - first_infected)
-        else:    
-            first_ETC = region.ETCs[0]
-            first_help = first_ETC.timestep_opened
-            time_until_arrival.append(first_help - first_infected)
-            
+        if first_infected is not None:
+
+            #if no ETCs were ever placed
+            #now just the time until the simulation ends
+            if not region.ETCs:
+
+                time_until_arrival.append(timesteps - 1 - first_infected)
+            else:  
+
+                first_ETC = region.ETCs[0]
+                first_help = first_ETC.timestep_opened
+                time_until_arrival.append(first_help - first_infected)
+
+
     average = sum(time_until_arrival) / len(time_until_arrival)
     
     difference = 0

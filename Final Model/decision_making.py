@@ -9,7 +9,7 @@ Created on Thu May 23 22:43:33 2019
 import random
 
 def explorative_decision(regions,x, surveillance_capacity, bed_capacity):
-        
+
         #assumption that you can send out max 3 surveillance teams at a time
         available_st = min(3, surveillance_capacity - surveillance_teams_in_use(regions,x))
         
@@ -31,7 +31,7 @@ def explorative_decision(regions,x, surveillance_capacity, bed_capacity):
             for i in range(min(len(hidden_regions),available_st)):
                 chosen_region = random.choice(hidden_regions)
                 chosen_region.surveillance_team(x)
-                #print("A surveillance team has been deloyed to region", chosen_region.number)
+                print("A surveillance team has been deloyed to region", chosen_region.number)
 
         
         #Else we can (further) reduce uncertainty using a small ETC
@@ -62,9 +62,10 @@ def explorative_decision(regions,x, surveillance_capacity, bed_capacity):
             #print(resources_in_use(regions,x))
 
             #For now, we always place a small ETC because this gives the fastest reduction.
-            if bed_capacity - resources_in_use(regions,x) >= 10:
+            #Uncertainty cannot be reduced below 0.2 so it makes no sense to do anything if you're already at that point
+            if bed_capacity - resources_in_use(regions,x) >= 10 and highest_uncertainty > 0.2:
                 chosen_region.placement_decision(x,10)
-                #print("I'm making an explorative decision to place a small ETC in region ", chosen_region.number)
+                print("I'm making an explorative decision to place a small ETC in region ", chosen_region.number)
             #else:
                 
                 #print("I wanted to make an explorative decision but there was no capacity")
@@ -79,10 +80,18 @@ def exploitative_decision(regions,x, bed_capacity):
             
             if region.hidden == False:
 
+                #we don't want to choose a region in which an ETC opens the this timestep
+                if region.ETCs:
+                    if region.ETCs[-1].timestep_opened == x:
+                        continue
+                        
+                        
                 #conservative choice: choose the region with the highest no of infections according to the lower bound
                 #for the next timestep
+                
                 infected = region.uncertain_I.current_range[0] + region.uncertain_I.current_range[0] * region.uncertain_bi.variable_range[0] * (10000 / (10000 + region.uncertain_I.current_range[0]))
 
+                #we also don't want to pick a region in which an ETC opens next timestep
                 if infected > highest_infected:
                     highest_infected = infected
                     options = [region]
@@ -100,8 +109,10 @@ def exploitative_decision(regions,x, bed_capacity):
             #if there are multiple regions with the same number of infected people, choose one at random
             if len(options) != 1:
                 chosen_region = random.choice(options)
+                    
             else:
                 chosen_region = options[0]
+
 
             #print(resources_in_use(regions,x))    
             if highest_infected >= 100:
@@ -109,14 +120,14 @@ def exploitative_decision(regions,x, bed_capacity):
                     chosen_region.placement_decision(x,100)
                 elif bed_capacity - resources_in_use(regions,x) >= 50:
                     chosen_region.placement_decision(x,50)
-                    #print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
+                    print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
                 elif bed_capacity - resources_in_use(regions,x) >= 10:
                     chosen_region.placement_decision(x,10)
 
             elif highest_infected >= 50:
                 if bed_capacity - resources_in_use(regions,x) >= 50:
                     chosen_region.placement_decision(x,50)
-                    #print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
+                    print("I'm making an exploitaive decision to place a big ETC in region", chosen_region.number)
                 elif bed_capacity - resources_in_use(regions,x) >= 10:
                     chosen_region.placement_decision(x,10)
                     #print("I wanted to place a big ETC but there was not enough capacity so I placed a small one in region", chosen_region.number)
@@ -124,9 +135,10 @@ def exploitative_decision(regions,x, bed_capacity):
                     #print("I wanted to place a big ETC but there was no capacity to do anything in region", chosen_region.number)
 
             else:
-                if bed_capacity - resources_in_use(regions,x) >= 10:
+                #at a certain point you only might have 0.004 infected individuals, makes no sense to keep adding capacity at that point
+                if bed_capacity - resources_in_use(regions,x) >= 10 and highest_infected >= 1:
                     chosen_region.placement_decision(x,10)
-                    #print("I'm making an exploitative decision to place a small ETC in region", chosen_region.number)
+                    print("I'm making an exploitative decision to place a small ETC in region", chosen_region.number)
                 #else:
                     #print("I wanted to place a small ETC but there was no capacity to do anything in region", chosen_region.number)
 
