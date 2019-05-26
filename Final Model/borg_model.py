@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 23 22:21:29 2019
+Created on Sat May 25 23:46:50 2019
 
 @author: Emma
 """
@@ -9,7 +9,8 @@ from scipy.integrate import odeint
 import numpy as np
 import random
 import pandas as pd
-import datetime
+from sys import *
+from borg import *
 
 import objective_functions
 from compartmental_model import calc_population
@@ -19,7 +20,9 @@ import uncertainty_reduction
 
 from objects import  Region
 
-
+nvars = 5
+nobjs =5
+k = nvars - nobjs + 1
 
     
 compartments = 6 #no. of compartments in the model
@@ -44,16 +47,18 @@ bed_capacity = 900   #From WHO DATA
 ### TIMESTEPS ###
 timesteps = 26
 
+I4 = 3
+I14 = 25
+I15 = 32
+beta_i = 0.32
+beta_d = 0.73
+travel_rate = 0.05
 
 
-def ebola_model(I4 =3,
-                I14 = 25,
-                I15 = 32,
-                beta_i = 0.32,
-                beta_d = 0.73,
-                travel_rate = 0.05,
-                exploration_ratio = 0.5,
-                store_data = False):
+def borg_ebola(*vars):
+        
+    
+    c1, c2, r1, r2, w = vars
     
     
     #Time vector to feed into odeint, one timestep each iteration
@@ -84,8 +89,7 @@ def ebola_model(I4 =3,
         
     no_response_t = np.linspace(0, timesteps, timesteps)
     no_response_population = odeint(calc_population, y0, t=no_response_t, args=(regions, travel_rate))
-    
-    pd.DataFrame(no_response_population).to_csv("no_response_data.csv")
+
     
     no_response_results = no_response_population[-1]
     
@@ -111,6 +115,7 @@ def ebola_model(I4 =3,
         
         #make decisions
         decision_type  = random.uniform(0,1)
+        exploration_ratio = decision_making.policy_exploration_ratio(c1, c2, r1, r2, w, regions)
         
         if decision_type < exploration_ratio:
             
@@ -147,47 +152,22 @@ def ebola_model(I4 =3,
             regions[i].update(y0[i*compartments:i*compartments+compartments])
             regions[i].update_cummulative_patients()
 
-    if store_data:
-        df = pd.DataFrame()
-        
-        for region in regions:
-            data = pd.DataFrame({'S': region.susceptible, 
-                                 'I': region.infected,
-                                 'R': region.recovered,
-                                 'D': region.deceased,
-                                 'F': region.funeral,
-                                 'T': region.treated,
-                                 'Uncertainty': region.uncertainty_level,
-                                 'Capacity': region.capacity_over_time})
-    
-            df = df.append(data)
-            
-        #file_name = datetime.datetime.now() 
-        df.to_csv('validity_test.csv')
-        
-    objective_1 = objective_functions.effectiveness(regions, compartments, no_response_results)
+    #BORG MINIMIZES        
+    objective_1 = 1 - objective_functions.effectiveness(regions, compartments, no_response_results)
     objective_2 = objective_functions.speed(regions,timesteps)
     objective_3 = objective_functions.equity_demand(regions)
     objective_4 = objective_functions.equity_arrival(regions,timesteps)
     objective_5 = objective_functions.efficiency(regions, compartments, no_response_results, timesteps)
     results = [objective_1, objective_2, objective_3, objective_4, objective_5]
     
-    if store_data:
-        df = pd.DataFrame()
-        
-        for region in regions:
-            data = pd.DataFrame({'S': region.susceptible, 
-                                 'I': region.infected,
-                                 'R': region.recovered,
-                                 'D': region.deceased,
-                                 'F': region.funeral,
-                                 'T': region.treated,
-                                 'Uncertainty': region.uncertainty_level,
-                                 'Capacity': region.capacity_over_time})
-    
-            df = df.append(data)
-            
-        #file_name = datetime.datetime.now() 
-        df.to_csv('validity_test.csv')
     
     return results
+
+borg = Borg(nvars, nobjs, 0, borg_ebola)
+borg.setBounds([-1,1],[-1,1],[0,1],[0,1],[0,1])
+borg.setEpsilons(0.001, 1, 0.001, 0.0001, 1)
+
+result = borg.solve({"maxEvaluations":100})
+
+for solution in result:
+    print(solution.getObjectives())
