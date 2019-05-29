@@ -194,6 +194,13 @@ class Region:
             if i <= p:
                 self.hidden = False
                 #print("Spontaneous news from region ", self.number)
+                
+                
+    def spontaneous_news2(self):
+        no_infected = self.infected[-1]
+        if no_infected >= 40:
+            self.hidden = False
+                #print("Spontaneous news from region ", self.number)
         
         
 

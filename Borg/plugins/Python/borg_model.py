@@ -96,13 +96,13 @@ def borg_ebola(*vars):
     
     for x in range (0,timesteps):
         
-        print("Timestep ", x)
+        #print("Timestep ", x)
         
         for region in regions:
             
             #in some "hidden" regions, the # of patients may be so high we hear about it spontaneously
             if region.hidden == True:
-                region.spontaneous_news()
+                region.spontaneous_news2()
             
             #update uncertainties
             if region.uncertain_I.percentage > uncertainty_reduction.unc_infected(region,x):
@@ -143,8 +143,8 @@ def borg_ebola(*vars):
         #Run the compartmental model for 1 timestep                                                                                  
         population = odeint(calc_population, y0, t=time_vec, args=(regions, travel_rate))
         
-        #random travelling takes place here. The function returns the new list of the population, regardless of whether random travel occured
-        y0 = random_travelling(regions, population.T[:,1], compartments, i_index)
+        #in this version of the model random travelling does not take place in order to run BORG faster (hopefully)
+        #y0 = random_travelling(regions, population.T[:,1], compartments, i_index)
 
         
         #store the results and update the region objects
@@ -164,10 +164,10 @@ def borg_ebola(*vars):
     return results
 
 borg = Borg(nvars, nobjs, 0, borg_ebola)
-borg.setBounds([-1,1],[-1,1],[0,1],[0,1],[0,1])
+borg.setBounds([-1,1],[-1,1],[0.00000001,1],[0.00000001,1],[0,1])
 borg.setEpsilons(0.001, 1, 0.001, 0.0001, 1)
 
-result = borg.solve({"maxEvaluations":10000})
+result = borg.solve({"maxEvaluations":10000,"frequency":100,"runtimefile":"runtimeresults.txt"})
 
 df = pd.DataFrame()
 
