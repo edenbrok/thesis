@@ -98,7 +98,7 @@ def exploitative_decision(regions,x, bed_capacity):
                 #conservative choice: choose the region with the highest no of infections according to the lower bound
                 #for the next timestep
                 
-                infected = region.uncertain_I.current_range[0] + region.uncertain_I.current_range[0] * region.uncertain_bi.variable_range[0] * (10000 / (10000 + region.uncertain_I.current_range[0]))
+                infected = region.uncertain_I.current_range[0] + region.uncertain_I.current_range[0] * region.uncertain_bi.variable_range[0] * (region.susceptible[0] / (region.susceptible[0] + region.uncertain_I.current_range[0]))
 
                 #we also don't want to pick a region in which an ETC opens next timestep
                 if infected > highest_infected:
