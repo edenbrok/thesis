@@ -9,8 +9,7 @@ from scipy.integrate import odeint
 import numpy as np
 import random
 import pandas as pd
-from sys import *
-from borg import *
+
 
 import objective_functions
 from compartmental_model import calc_population
@@ -19,12 +18,7 @@ from utility import random_travelling
 import uncertainty_reduction
 
 from objects import  Region
-
-nvars = 5
-nobjs =5
-k = nvars - nobjs + 1
-
-    
+  
 compartments = 6 #no. of compartments in the model
 i_index = 1 #when listing the compartments, where the infected compartent is (starting from 0)
     
@@ -55,11 +49,15 @@ beta_d = 0.73
 travel_rate = 0.05
 
 
-def borg_ebola(*vars):
+def borg_ebola(c1, c2, r1, r2, w,
+               I4 =3,
+               I14 = 25,
+               I15 = 32,
+               beta_i = 0.32,
+               travel_rate = 0.05,
+               store_data = False):
         
-    
-    c1, c2, r1, r2, w = vars
-    
+
     
     #Time vector to feed into odeint, one timestep each iteration
     time_vec = np.linspace(0,1,2)
@@ -96,7 +94,7 @@ def borg_ebola(*vars):
     
     for x in range (0,timesteps):
         
-        print("Timestep ", x)
+        #print("Timestep ", x)
         
         for region in regions:
             
@@ -152,22 +150,32 @@ def borg_ebola(*vars):
             regions[i].update(y0[i*compartments:i*compartments+compartments])
             regions[i].update_cummulative_patients()
 
-    #BORG MINIMIZES        
-    objective_1 = 1 - objective_functions.effectiveness(regions, compartments, no_response_results)
+        
+    objective_1 = -objective_functions.effectiveness(regions, compartments, no_response_results)
     objective_2 = objective_functions.speed(regions,timesteps)
     objective_3 = objective_functions.equity_demand(regions)
     objective_4 = objective_functions.equity_arrival(regions,timesteps)
     objective_5 = objective_functions.efficiency(regions, compartments, no_response_results, timesteps)
     results = [objective_1, objective_2, objective_3, objective_4, objective_5]
     
+    if store_data:
+        df = pd.DataFrame()
+        
+        for region in regions:
+            data = pd.DataFrame({'S': region.susceptible, 
+                                 'I': region.infected,
+                                 'R': region.recovered,
+                                 'D': region.deceased,
+                                 'F': region.funeral,
+                                 'T': region.treated,
+                                 'Uncertainty': region.uncertainty_level,
+                                 'Capacity': region.capacity_over_time})
+    
+            df = df.append(data)
+            
+        #file_name = datetime.datetime.now() 
+        df.to_csv('validity_test.csv')
+    
     
     return results
 
-borg = Borg(nvars, nobjs, 0, borg_ebola)
-borg.setBounds([-1,1],[-1,1],[0,1],[0,1],[0,1])
-borg.setEpsilons(0.001, 1, 0.001, 0.0001, 1)
-
-result = borg.solve({"maxEvaluations":100})
-
-for solution in result:
-    print(solution.getObjectives())
