@@ -52,3 +52,4 @@ Borg/dtlz2.set
 Borg/dtlz2_advanced.exe
 Borg/dtlz2_ms.c
 Borg/dtlz2_serial.c
+*.pyc
