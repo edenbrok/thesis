@@ -92,7 +92,7 @@ def ebola_model(I4 =3,
     
     for x in range (0,timesteps):
         
-        print("Timestep ", x)
+        #print("Timestep ", x)
         
         for region in regions:
             

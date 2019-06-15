@@ -22,7 +22,7 @@ def total_uncertainty(regions):
 
 def unc_infected(region, timestep):
     
-    #TO-DO: check the reduction curve for the 100 bed ETC
+
     ETC_100 = [1.0, 0.95, 0.90, 0.85, 0.75, 0.7,0.5,0.325,0.25,0.225,0.21,0.2]
     ETC_50 = [1.0,0.95,0.85,0.7,0.5,0.325,0.25,0.225,0.21,0.2]
     ETC_10 = [1.0,0.95,0.7,0.55,0.45,0.375,0.325,0.30]
