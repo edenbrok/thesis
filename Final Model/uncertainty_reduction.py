@@ -65,7 +65,7 @@ def unc_infected(region, timestep):
 
     return perc_reduced
         
-####CHECK THIS ONE
+
 def unc_transmission(cumm_patients):
     if cumm_patients > 100:
         return 0
