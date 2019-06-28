@@ -65,6 +65,11 @@ def ebola_model(I4 =3,
     #setting up the model outcome of uncertainty over time
     uncertainty_over_time = []
     
+    #setting up the model outcomes for allocation decisions over time
+    decisions_over_time = []
+    chosen_regions = []
+    
+    
     for entry in regions_list:
         if entry == 4:
             region = Region(entry, region_population[entry], I4, 0, (I4/4), 0, 0, beta_i, beta_d)
@@ -120,11 +125,13 @@ def ebola_model(I4 =3,
         if decision_type < exploration_ratio:
             
             #take an explorative action
-            decision_making.explorative_decision(regions,x, surveillance_capacity, bed_capacity)
+            decisions_over_time.append(1)
+            decision_making.explorative_decision(regions,x, surveillance_capacity, bed_capacity, chosen_regions)
 
         else:
             #take an exploitative action
-            decision_making.exploitative_decision(regions,x, bed_capacity)
+            decisions_over_time.append(0)
+            decision_making.exploitative_decision(regions,x, bed_capacity, chosen_regions)
 
         
         #See if any resources can be freed for the next timestep:
@@ -175,7 +182,7 @@ def ebola_model(I4 =3,
     objective_3 = objective_functions.equity_demand(regions)
     objective_4 = objective_functions.equity_arrival(regions,timesteps)
     objective_5 = objective_functions.efficiency(regions, compartments, no_response_results, timesteps)
-    results = [objective_1, objective_2, objective_3, objective_4, objective_5, uncertainty_over_time]
+    results = [objective_1, objective_2, objective_3, objective_4, objective_5, uncertainty_over_time, decisions_over_time, chosen_regions]
     
     if store_data:
         df = pd.DataFrame()
