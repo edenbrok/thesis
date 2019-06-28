@@ -62,6 +62,9 @@ def ebola_model(I4 =3,
     #Setting up all the region objects      
     regions = []
     
+    #setting up the model outcome of uncertainty over time
+    uncertainty_over_time = []
+    
     for entry in regions_list:
         if entry == 4:
             region = Region(entry, region_population[entry], I4, 0, (I4/4), 0, 0, beta_i, beta_d)
@@ -106,8 +109,10 @@ def ebola_model(I4 =3,
                 
             if region.uncertain_bi.percentage > uncertainty_reduction.unc_transmission(region.cummulative_patients_prev):
                 region.uncertain_bi.reduce_uncertainty(uncertainty_reduction.unc_transmission(region.cummulative_patients_prev))
-            
- 
+        
+        #right here you have the level of uncertainty experienced by the decision maker when they make a decision
+        #store that as an outcome
+        uncertainty_over_time.append(uncertainty_reduction.total_uncertainty(regions))
         
         #make decisions
         decision_type  = random.uniform(0,1)
@@ -170,7 +175,7 @@ def ebola_model(I4 =3,
     objective_3 = objective_functions.equity_demand(regions)
     objective_4 = objective_functions.equity_arrival(regions,timesteps)
     objective_5 = objective_functions.efficiency(regions, compartments, no_response_results, timesteps)
-    results = [objective_1, objective_2, objective_3, objective_4, objective_5]
+    results = [objective_1, objective_2, objective_3, objective_4, objective_5, uncertainty_over_time]
     
     if store_data:
         df = pd.DataFrame()
