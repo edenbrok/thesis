@@ -90,6 +90,7 @@ class Region:
         self.number = number
         self.susceptible = [susceptible]
         self.infected = [infected]
+        self.observed_infected = [0]
         self.recovered = [recovered]
         self.deceased = [deceased]
         self.funeral = [funeral]
@@ -126,12 +127,15 @@ class Region:
         
         if self.hidden == True:
             self.uncertainty_level.append(3)
+            self.observed_infected.append(0)
         else:
             self.uncertainty_level.append(self.uncertain_I.percentage + self.uncertain_bi.percentage)
         
         self.capacity_over_time.append(self.ETC_cap)
         
         self.uncertain_I.new_truth(self.infected[-1])
+        if self.hidden == False:
+            self.observed_infected.append(self.uncertain_I.current_range[0])
         
         
         

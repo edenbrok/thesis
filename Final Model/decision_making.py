@@ -87,7 +87,7 @@ def explorative_decision(regions,x, surveillance_capacity, bed_capacity, chosen_
             #Uncertainty cannot be reduced below 0.2 so it makes no sense to do anything if you're already at that point
             if bed_capacity - resources_in_use(regions,x) >= 10 and highest_uncertainty > 0.2:
                 chosen_region.placement_decision(x,10)
-                chosen_regions.append(str(chosen_region.number))
+                chosen_regions.append(stringifyer([chosen_region.number]))
                 #print("I'm making an explorative decision to place a small ETC in region ", chosen_region.number)
             else:
                 chosen_regions.append(None)

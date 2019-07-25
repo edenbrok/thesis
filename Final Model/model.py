@@ -159,23 +159,6 @@ def ebola_model(I4 =3,
             regions[i].update(y0[i*compartments:i*compartments+compartments])
             regions[i].update_cummulative_patients()
 
-    if store_data:
-        df = pd.DataFrame()
-        
-        for region in regions:
-            data = pd.DataFrame({'S': region.susceptible, 
-                                 'I': region.infected,
-                                 'R': region.recovered,
-                                 'D': region.deceased,
-                                 'F': region.funeral,
-                                 'T': region.treated,
-                                 'Uncertainty': region.uncertainty_level,
-                                 'Capacity': region.capacity_over_time})
-    
-            df = df.append(data)
-            
-        #file_name = datetime.datetime.now() 
-        df.to_csv('validity_test.csv')
         
     objective_1 = -objective_functions.effectiveness(regions, compartments, no_response_results)
     objective_2 = objective_functions.speed(regions,timesteps)
@@ -202,11 +185,15 @@ def ebola_model(I4 =3,
                                  'F': region.funeral,
                                  'T': region.treated,
                                  'Uncertainty': region.uncertainty_level,
+                                 'Observed I': region.observed_infected,
                                  'Capacity': region.capacity_over_time})
     
             df = df.append(data)
             
         #file_name = datetime.datetime.now() 
-        df.to_csv('validity_test.csv')
+        df.to_csv('save_test.csv')
+        
+        df2 = pd.DataFrame(results)
+        df2.to_csv('result_test.csv')
     
     return results
