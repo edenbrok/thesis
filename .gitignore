@@ -54,3 +54,5 @@ Borg/dtlz2_ms.c
 Borg/dtlz2_serial.c
 *.pyc
 *.gz
+*.mp4
+*.mp4
