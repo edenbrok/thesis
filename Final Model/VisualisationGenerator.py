@@ -130,12 +130,12 @@ ims = []
 
 
 for i in range(27):
-    if i < 26:
+    if i > 0:
         #make a list of all the regions affected by decisions in timestep i
-        l = region_extraction(outcomes['Chosen Regions'][i], outcomes['Decision Types'][i])
+        l = region_extraction(outcomes['Chosen Regions'][i-1], outcomes['Decision Types'][i-1])
         for r in l:
             k,j = array_coord(r, 16)
-            if outcomes['Decision Types'][i] == 0:
+            if outcomes['Decision Types'][i-1] == 0:
                 if a[k][j] > 0.5:
                     a[k][j] = 0.5
                 a[k][j] -= 0.1
@@ -177,7 +177,7 @@ im2 = plt.imshow(b, cmap='binary', vmin=0, vmax=1)
 
 ax.set_title("Uncertainty Over Time", loc='center', fontsize=4, pad=2)
 
-ims2 = [[im2]]
+ims2 = []
 
 
 #for each timestep
@@ -204,7 +204,7 @@ im3 = plt.imshow(c, cmap='gist_heat_r', vmin=0, vmax=max_cases)
 
 ax.set_title("Actual Cases",  loc='center', fontsize=4, pad=2)
 
-ims3 = [[im3]]
+ims3 = []
 
 
 for i in range(27):
@@ -230,7 +230,7 @@ ax.set_title("Observed Cases", loc='center', fontsize=4, pad=2)
 
 
 
-ims4 = [[im4]]
+ims4 = []
 
 max_cases = results['I'].max()
 for i in range(27):

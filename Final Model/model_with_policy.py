@@ -55,8 +55,7 @@ def borg_ebola(c1, c2, r1, r2, w,
                I15 = 32,
                beta_i = 0.32,
                travel_rate = 0.05,
-               store_data = False,
-               seed=None):
+               store_data = False):
         
 
     
@@ -188,13 +187,16 @@ def borg_ebola(c1, c2, r1, r2, w,
                                  'F': region.funeral,
                                  'T': region.treated,
                                  'Uncertainty': region.uncertainty_level,
+                                 'Observed I': region.observed_infected,
                                  'Capacity': region.capacity_over_time})
     
             df = df.append(data)
             
         #file_name = datetime.datetime.now() 
-        df.to_csv('validity_test.csv')
-    
+        df.to_csv('save_test.csv')
+        
+        df2 = pd.DataFrame(results)
+        df2.to_csv('result_test.csv')
     
     return results
 
